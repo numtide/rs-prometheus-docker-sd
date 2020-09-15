@@ -1,0 +1,8 @@
+name = "promotheus-service-discovery-docker"
+
+packages = [
+	"psdd.pkgs.rust",
+    "gcc",
+    "binutils",
+
+]
