@@ -1,5 +1,5 @@
 [package]
-name = "promotheus-service-discovery-docker"
+name = "promotheus_service_discovery_docker"
 version = "0.1.0"
 authors = ["rizary <andika.riyan@gmail.com>"]
 edition = "2018"
@@ -15,6 +15,8 @@ tokio = { version = "0.2.22", features = ["time", "fs"] }
 thiserror = "1.0"
 tokio-util = { version = "0.3.1", features = ["codec"] }
 env_logger = "0.7.1"
+serde = {version = "1.0.10", features = ["derive"]}
+serde_json = {version = "1.0.57", features = ["default"]}
 
 [target.'cfg(unix)'.dependencies]
 hyperlocal =  { version = "0.1.5", package = "hyper-unix-connector" }
