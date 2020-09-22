@@ -1,5 +1,5 @@
 {
-  description = "promotheus-service-discovery-docker";
+  description = "rs-promotheus-docker-sd";
 
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.devshell.url = "github:numtide/devshell";
@@ -21,17 +21,17 @@
           pkgs = import nixpkgs {
             inherit system;
             overlays = [
-			  (import mozilla-overlay)
-			  devshell.overlay
+              (import mozilla-overlay)
+              devshell.overlay
               self.overlay
             ];
           };
         in
         {
-		  legacyPackages = pkgs.psdd;
+          legacyPackages = pkgs.psdd;
           defaultPackages = pkgs.psdd;
           packages = pkgs.psdd;
-		  devShell = pkgs.mkDevShell.fromTOML ./devshell.toml;
+          devShell = pkgs.mkDevShell.fromTOML ./devshell.toml;
 
           # Additional checks on top of the packages
           checks = { };

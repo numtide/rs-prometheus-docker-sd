@@ -1,8 +1,7 @@
-name = "promotheus-service-discovery-docker"
+name = "rs-promotheus-docker-sd"
 
 packages = [
+	"binutils",
+	"gcc",
 	"psdd.pkgs.rust",
-    "gcc",
-    "binutils",
-
 ]
