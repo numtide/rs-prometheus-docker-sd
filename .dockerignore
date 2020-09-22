@@ -1,4 +1,8 @@
 *.md
 *.nix
+.dockerfile
+Dockerfile
 devshell.toml
+pkgs/
+rustfmt.toml
 target/
