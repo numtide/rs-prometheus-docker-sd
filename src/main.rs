@@ -11,7 +11,6 @@ use env_logger;
 use std::collections::HashMap;
 use std::default::Default;
 use std::fs;
-use std::fs::OpenOptions;
 use std::time::Duration;
 use std::{thread, time};
 
@@ -102,22 +101,7 @@ async fn run(
     let docker = Docker::connect_with_unix_defaults().unwrap();
     #[cfg(windows)]
     let docker = Docker::connect_with_named_pipe_defaults().unwrap();
-    let open_config = OpenOptions::new()
-        .read(true)
-        .write(true)
-        .create(true)
-        .open(config_path);
-    if let Err(err) = open_config {
-        error!("Error: File error due to {}", err)
-    }
-
-    let mut previous_config = match fs::read_to_string(config_path) {
-        Ok(x) => x,
-        Err(err) => {
-            error!("Error: File error due to {}", err);
-            String::new()
-        }
-    };
+    let mut previous_config = String::new();
 
     loop {
         // TODO: Create the empty struct
@@ -147,7 +131,7 @@ async fn run(
         let current_config = serde_json::to_string(&promconfig)?;
         if current_config != previous_config {
             if let Err(err) = fs::write(config_path, current_config.clone()) {
-                error!("Error: File error due to {}", err)
+                error!("Error: File error due to: {}", err)
             }
             previous_config = current_config;
         }
