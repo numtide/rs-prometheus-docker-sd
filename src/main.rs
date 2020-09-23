@@ -12,11 +12,9 @@ use std::collections::HashMap;
 use std::default::Default;
 use std::fs;
 use std::fs::File;
-use std::io::Write;
 use std::path::Path;
 use std::time::Duration;
 use std::{thread, time};
-use tempdir::TempDir;
 
 use tokio::runtime::Runtime;
 
@@ -133,55 +131,45 @@ async fn run(refresh_interval_sec: Duration) -> Result<(), Box<dyn std::error::E
         }
 
         // Only write if the content has changed
-        let folder = Path::new("/promotheus-docker-sd");
-        let config_path = folder.join("docker-targets.json");
-        if !folder.exists() {
-            println!("Folder doesn't exist, creating a new folder...");
-            if let Err(err) = fs::create_dir_all(folder) {
-                error!("Cannot create {:?} due to {} error", folder, err)
-            }
-            println!("Folder '/promotheus-docker-sd/' created.");
-            println!("Creating a new 'docker-targets.json' file");
-            if let Err(err) = File::create(config_path.clone()) {
-                error!("Error: Cannot create config file due to: {}", err)
-            }
-            println!("File 'docker-targets.json' created.");
-        }
-
         let current_config = serde_json::to_string(&promconfig)?;
-
-        let tmp = Path::new("/tmp");
-        if !tmp.exists() {
-            println!("'/tmp' doesn't exist, creating a new tmp folder...");
-            if let Err(err) = fs::create_dir_all(tmp) {
-                error!("Cannot create {:?} due to {} error", tmp, err)
-            }
-            println!("Folder '/tmp' created.");
-        }
-        let tmp_dir = TempDir::new_in("/tmp/", "promotheus-docker-sd")?;
-        let tmp_path = tmp_dir.path().join("docker-targets.json");
-        if let Err(err) = fs::write(tmp_path.clone(), current_config.clone()) {
-            error!("Cannot write to temp file due to: {}", err)
-        }
-
         if current_config != previous_config {
+            let folder = Path::new("/promotheus-docker-sd");
+            let config_path = folder.join("docker-targets.json");
+            let tmp_path = folder.join(".tmp.docker-targets.json");
+
+            if !folder.exists() {
+                println!("Folder doesn't exist, creating a new folder...");
+                if let Err(err) = fs::create_dir_all(folder) {
+                    error!("Cannot create {:?} due to {} error", folder, err)
+                }
+                println!("Folder '/promotheus-docker-sd/' created.");
+                println!("Creating a new 'docker-targets.json' file");
+                if let Err(err) = File::create(config_path.clone()) {
+                    error!("Error: Cannot create config file due to: {}", err)
+                }
+                println!("File 'docker-targets.json' created.");
+            }
+
+            if let Err(err) = fs::write(tmp_path.clone(), current_config.clone()) {
+                error!("Cannot write to temp file due to: {}", err)
+            }
+
             if previous_config.is_empty() {
                 println!("Creating 'docker-targets.json'...");
             } else {
-                println!("Found new config. Attempting to update 'docker-targets.json'...");
+                println!("Updating 'docker-targets.json'...");
             }
-            if let Err(err) = fs::copy(tmp_path, config_path) {
-                error!("Cannot copy to 'docker-targets.json' due to: {}", err)
+
+            // Move the new config in place of the old one
+            if let Err(err) = fs::rename(tmp_path, config_path) {
+                error!("Cannot move to 'docker-targets.json' due to: {}", err)
             }
+
+            // Print the new config
+            println!("{}", current_config);
+
+            // Store the config for the next loop
             previous_config = current_config;
-
-            if let Err(err) = fs::remove_dir_all(tmp_dir) {
-                error!("Cannot delete temporary directory and files: {}", err)
-            }
-        }
-
-        for pc in promconfig {
-            println!("{:#?}", pc)
         }
 
         // Wait for a bit
@@ -192,7 +180,7 @@ async fn run(refresh_interval_sec: Duration) -> Result<(), Box<dyn std::error::E
 fn main() {
     env_logger::init();
 
-    let refresh_interval_sec = time::Duration::from_secs(900);
+    let refresh_interval_sec = time::Duration::from_secs(30);
 
     let mut rt = Runtime::new().unwrap();
 
