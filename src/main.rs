@@ -149,7 +149,7 @@ async fn run(
 fn main() {
     env_logger::init();
 
-    let config_path = "/rs-promotheus-docker-sd/docker-targets.json";
+    let config_path = "/promotheus-docker-sd/docker-targets.json";
     let refresh_interval_sec = time::Duration::from_secs(900);
 
     let mut rt = Runtime::new().unwrap();

@@ -15,7 +15,7 @@ services:
        - ./prometheus/config:/etc/prometheus:ro
        - ./prometheus/data:/prometheus:rw
     volumes_from:
-       - rs-prometheus-docker-sd:ro
+       - prometheus-docker-sd:ro
     command: [
        "--config.file=/etc/prometheus/prometheus.yml",
        "--storage.tsdb.path=/prometheus",
@@ -25,9 +25,9 @@ services:
     ]
 
 # ==============================================================================
-# rs-prometheus-docker-sd
+# prometheus-docker-sd
 # ------------------------------------------------------------------------------
-  rs-prometheus-docker-sd:
+  prometheus-docker-sd:
     image: "numtide/rs-prometheus-docker-sd:latest"
     restart: unless-stopped
     volumes:

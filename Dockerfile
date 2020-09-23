@@ -25,16 +25,16 @@ LABEL org.label-schema.build-date=${BUILD_DATE} \
 
 # Build-time metadata as defined at https://github.com/opencontainers/image-spec/blob/master/annotations.md
 LABEL org.opencontainers.image.ref.name="numtide/rs-prometheus-docker-sd" \
-      org.opencontainers.image.created=$BUILD_RFC3339 \
+      org.opencontainers.image.created=${BUILD_RFC3339} \
       org.opencontainers.image.authors="NumTide <info@numtide.com>" \
       org.opencontainers.image.documentation="https://github.com/numtide/rs-prometheus-docker-sd/blob/master/README.md" \
       org.opencontainers.image.description="Prometheus Service Discovery for Docker Container." \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.source="https://github.com/numtide/rs-prometheus-docker-sd" \
-      org.opencontainers.image.revision=$VCS_REF \
-      org.opencontainers.image.version=$VERSION \
+      org.opencontainers.image.revision=${VCS_REF} \
+      org.opencontainers.image.version=${VERSION} \
       org.opencontainers.image.url="https://hub.docker.com/r/numtide/rs-prometheus-docker-sd"
 
-COPY --from=builder /home/rust/target/x86_64-unknown-linux-musl/release/rs-promotheus-docker-sd /app
-VOLUME /rs-prometheus-docker-sd
+COPY --from=builder --chown=0:0 /home/rust/target/x86_64-unknown-linux-musl/release/rs-promotheus-docker-sd /app
+VOLUME /prometheus-docker-sd
 ENTRYPOINT ["/app"]

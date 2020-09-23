@@ -12,7 +12,9 @@ Prometheus Service Discovery for Docker Container.
 
 ## How to use this image
 Sample `docker-compose.yml`:
-```bash
+
+<!-- [> ./docker-compose.yml](docker-compose.yml) -->
+<!-- BEGIN mdsh -->
 version: '2'
 services:
 
@@ -30,7 +32,7 @@ services:
        - ./prometheus/config:/etc/prometheus:ro
        - ./prometheus/data:/prometheus:rw
     volumes_from:
-       - rs-prometheus-docker-sd:ro
+       - prometheus-docker-sd:ro
     command: [
        "--config.file=/etc/prometheus/prometheus.yml",
        "--storage.tsdb.path=/prometheus",
@@ -40,14 +42,14 @@ services:
     ]
 
 # ==============================================================================
-# rs-prometheus-docker-sd
+# prometheus-docker-sd
 # ------------------------------------------------------------------------------
-  rs-prometheus-docker-sd:
+  prometheus-docker-sd:
     image: "numtide/rs-prometheus-docker-sd:latest"
     restart: unless-stopped
     volumes:
         - /var/run/docker.sock:/var/run/docker.sock
-```
+<!-- END mdsh -->
 
 Add to your scrape config in `prometheus.yml`:
 ```bash
@@ -86,4 +88,4 @@ docker run -d \
 
 ## Debugging
 
-`RUST_LOG=rs_prometheus_docker_sd cargo run`
+    RUST_LOG=rs_prometheus_docker_sd cargo run
