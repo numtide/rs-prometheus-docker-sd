@@ -11,8 +11,12 @@ use env_logger;
 use std::collections::HashMap;
 use std::default::Default;
 use std::fs;
+use std::fs::File;
+use std::io::Write;
+use std::path::Path;
 use std::time::Duration;
 use std::{thread, time};
+use tempdir::TempDir;
 
 use tokio::runtime::Runtime;
 
@@ -93,10 +97,7 @@ async fn maybe_add_container_info<'a>(
     }
 }
 
-async fn run(
-    config_path: &str,
-    refresh_interval_sec: Duration,
-) -> Result<(), Box<dyn std::error::Error>> {
+async fn run(refresh_interval_sec: Duration) -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(unix)]
     let docker = Docker::connect_with_unix_defaults().unwrap();
     #[cfg(windows)]
@@ -127,16 +128,58 @@ async fn run(
 
         promconfig.retain(|e| !e.targets.is_empty());
 
-        // Only write if the content has changed
-        let current_config = serde_json::to_string(&promconfig)?;
-        if current_config != previous_config {
-            if let Err(err) = fs::write(config_path, current_config.clone()) {
-                error!("Error: File error due to: {}", err)
-            }
-            previous_config = current_config;
+        if promconfig.len() < 1 {
+            error!("No containers have label \"prometheus-scrape.enabled\" set to true")
         }
 
-        // let result_config = promconfig.iter().filter(|e| e.is_)
+        // Only write if the content has changed
+        let folder = Path::new("/promotheus-docker-sd");
+        let config_path = folder.join("docker-targets.json");
+        if !folder.exists() {
+            println!("Folder doesn't exist, creating a new folder...");
+            if let Err(err) = fs::create_dir_all(folder) {
+                error!("Cannot create {:?} due to {} error", folder, err)
+            }
+            println!("Folder '/promotheus-docker-sd/' created.");
+            println!("Creating a new 'docker-targets.json' file");
+            if let Err(err) = File::create(config_path.clone()) {
+                error!("Error: Cannot create config file due to: {}", err)
+            }
+            println!("File 'docker-targets.json' created.");
+        }
+
+        let current_config = serde_json::to_string(&promconfig)?;
+
+        let tmp = Path::new("/tmp");
+        if !tmp.exists() {
+            println!("'/tmp' doesn't exist, creating a new tmp folder...");
+            if let Err(err) = fs::create_dir_all(tmp) {
+                error!("Cannot create {:?} due to {} error", tmp, err)
+            }
+            println!("Folder '/tmp' created.");
+        }
+        let tmp_dir = TempDir::new_in("/tmp/", "promotheus-docker-sd")?;
+        let tmp_path = tmp_dir.path().join("docker-targets.json");
+        if let Err(err) = fs::write(tmp_path.clone(), current_config.clone()) {
+            error!("Cannot write to temp file due to: {}", err)
+        }
+
+        if current_config != previous_config {
+            if previous_config.is_empty() {
+                println!("Creating 'docker-targets.json'...");
+            } else {
+                println!("Found new config. Attempting to update 'docker-targets.json'...");
+            }
+            if let Err(err) = fs::copy(tmp_path, config_path) {
+                error!("Cannot copy to 'docker-targets.json' due to: {}", err)
+            }
+            previous_config = current_config;
+
+            if let Err(err) = fs::remove_dir_all(tmp_dir) {
+                error!("Cannot delete temporary directory and files: {}", err)
+            }
+        }
+
         for pc in promconfig {
             println!("{:#?}", pc)
         }
@@ -149,10 +192,9 @@ async fn run(
 fn main() {
     env_logger::init();
 
-    let config_path = "/promotheus-docker-sd/docker-targets.json";
     let refresh_interval_sec = time::Duration::from_secs(900);
 
     let mut rt = Runtime::new().unwrap();
 
-    rt.block_on(run(config_path, refresh_interval_sec)).unwrap();
+    rt.block_on(run(refresh_interval_sec)).unwrap();
 }
