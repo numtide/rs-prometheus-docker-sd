@@ -1,5 +1,5 @@
 [package]
-name = "rs-promotheus-docker-sd"
+name = "rs-prometheus-docker-sd"
 version = "0.1.0"
 authors = ["rizary <andika.riyan@gmail.com>"]
 edition = "2018"

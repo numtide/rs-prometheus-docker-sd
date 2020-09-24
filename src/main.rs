@@ -29,7 +29,7 @@ use types::{
 // Add the docker information to the prometheus struct, if it has the right label.
 
 // Async function to take running docker's information
-// , and turn into promotheus' json format
+// , and turn into prometheus' json format
 async fn maybe_add_container_info<'a>(
     docker: &'a Docker,
     mut pconfig: PromConfig,
@@ -133,7 +133,7 @@ async fn run(refresh_interval_sec: Duration) -> Result<(), Box<dyn std::error::E
         // Only write if the content has changed
         let current_config = serde_json::to_string(&promconfig)?;
         if current_config != previous_config {
-            let folder = Path::new("/promotheus-docker-sd");
+            let folder = Path::new("/prometheus-docker-sd");
             let config_path = folder.join("docker-targets.json");
             let tmp_path = folder.join(".tmp.docker-targets.json");
 
@@ -142,7 +142,7 @@ async fn run(refresh_interval_sec: Duration) -> Result<(), Box<dyn std::error::E
                 if let Err(err) = fs::create_dir_all(folder) {
                     error!("Cannot create {:?} due to {} error", folder, err)
                 }
-                println!("Folder '/promotheus-docker-sd/' created.");
+                println!("Folder '/prometheus-docker-sd/' created.");
                 println!("Creating a new 'docker-targets.json' file");
                 if let Err(err) = File::create(config_path.clone()) {
                     error!("Error: Cannot create config file due to: {}", err)

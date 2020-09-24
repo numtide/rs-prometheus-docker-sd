@@ -737,7 +737,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rs-promotheus-docker-sd"
+name = "rs-prometheus-docker-sd"
 version = "0.1.0"
 dependencies = [
  "bollard 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",

@@ -35,6 +35,6 @@ LABEL org.opencontainers.image.ref.name="numtide/rs-prometheus-docker-sd" \
       org.opencontainers.image.version=${VERSION} \
       org.opencontainers.image.url="https://hub.docker.com/r/numtide/rs-prometheus-docker-sd"
 
-COPY --from=builder --chown=0:0 /home/rust/target/x86_64-unknown-linux-musl/release/rs-promotheus-docker-sd /app
+COPY --from=builder --chown=0:0 /home/rust/target/x86_64-unknown-linux-musl/release/rs-prometheus-docker-sd /app
 VOLUME /prometheus-docker-sd
 ENTRYPOINT ["/app"]

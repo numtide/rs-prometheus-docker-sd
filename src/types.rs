@@ -119,7 +119,7 @@ pub fn get_config_docker_compose_service(hash: HashMap<String, String, RandomSta
 // There are two option's label:
 // 1. `prometheus-scrape.hostname`
 // 2. `prometheus-scrape.ip_as_hostname`
-// `promotheus-scrape.hostname` is preferred first, and then `prometheus-scrape.ip_as_hostname`
+// `prometheus-scrape.hostname` is preferred first, and then `prometheus-scrape.ip_as_hostname`
 // in case both are not detected, the default container's name will be used.
 pub fn get_config_hostname(hash: HashMap<String, String, RandomState>, cname: String) -> String {
     let config_hostname = &String::from("prometheus-scrape.hostname");
