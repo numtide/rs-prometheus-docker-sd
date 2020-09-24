@@ -1,8 +1,12 @@
 *.md
 *.nix
 .dockerfile
+.git
+flake.lock
 Dockerfile
 devshell.toml
-pkgs/
+docker-compose.yml
+pkgs
+prometheus
 rustfmt.toml
-target/
+target
