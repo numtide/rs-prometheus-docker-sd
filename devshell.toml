@@ -1,4 +1,4 @@
-name = "rs-promotheus-docker-sd"
+name = "rs-prometheus-docker-sd"
 
 packages = [
 	"binutils",

@@ -1,5 +1,5 @@
 {
-  description = "rs-promotheus-docker-sd";
+  description = "rs-prometheus-docker-sd";
 
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.devshell.url = "github:numtide/devshell";
