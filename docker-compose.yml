@@ -2,33 +2,39 @@ version: '2'
 services:
 
 # ==============================================================================
-# prometheus
+# test-image
 # ------------------------------------------------------------------------------
-  prometheus:
-    image: "prom/prometheus:v2.10.0"
-    restart: unless-stopped
-    expose:
-      - "9090"
-    ports:
-      - "9090:9090"
-    volumes:
-       - ./prometheus/config:/etc/prometheus:ro
-       - ./prometheus/data:/prometheus:rw
-    volumes_from:
-       - prometheus-docker-sd:ro
-    command: [
-       "--config.file=/etc/prometheus/prometheus.yml",
-       "--storage.tsdb.path=/prometheus",
-       "--storage.tsdb.retention.time=15d",
-       "--web.console.libraries=/usr/share/prometheus/console_libraries",
-       "--web.console.templates=/usr/share/prometheus/consoles"
-    ]
+  test-image:
+    image: busybox
+    command: sleep 1000
+    labels:
+      - "prometheus-scrape.enabled=true"
 
 # ==============================================================================
 # prometheus-docker-sd
 # ------------------------------------------------------------------------------
   prometheus-docker-sd:
     image: "numtide/rs-prometheus-docker-sd:latest"
+    build: .
     restart: unless-stopped
     volumes:
         - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - test-image
+
+# ==============================================================================
+# prometheus
+# ------------------------------------------------------------------------------
+  prometheus:
+    image: "prom/prometheus:v2.21.0"
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    volumes_from:
+       - prometheus-docker-sd:ro
+    depends_on:
+      - prometheus-docker-sd

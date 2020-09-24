@@ -7,6 +7,6 @@ Dockerfile
 devshell.toml
 docker-compose.yml
 pkgs
-prometheus
+prometheus.yml
 rustfmt.toml
 target
