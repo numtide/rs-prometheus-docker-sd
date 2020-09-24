@@ -3,5 +3,6 @@ name = "rs-promotheus-docker-sd"
 packages = [
 	"binutils",
 	"gcc",
+	"mdsh",
 	"psdd.pkgs.rust",
 ]

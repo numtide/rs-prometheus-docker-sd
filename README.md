@@ -12,9 +12,8 @@ Prometheus Service Discovery for Docker Container.
 
 ## How to use this image
 Sample `docker-compose.yml`:
+<!-- [$ ./docker-compose.yml](docker-compose.yml) -->
 ```
-<!-- [> ./docker-compose.yml](docker-compose.yml) -->
-<!-- BEGIN mdsh -->
 version: '2'
 services:
 
@@ -49,7 +48,6 @@ services:
     restart: unless-stopped
     volumes:
         - /var/run/docker.sock:/var/run/docker.sock
-<!-- END mdsh -->
 ```
 
 Add to your scrape config in `prometheus.yml`:
