@@ -35,20 +35,27 @@ async fn maybe_add_container_info<'a>(
     mut pconfig: PromConfig,
     csummary: &'a ContainerSummary,
 ) -> Result<PromConfig, Box<dyn std::error::Error + 'static>> {
-    let container = docker
-        .inspect_container(
-            csummary.id.as_ref().unwrap(),
-            None::<InspectContainerOptions>,
-        )
+    if csummary.id == None {
+        return Ok(PromConfig::new());
+    }
+    let container_id = csummary.id.as_ref().unwrap();
+
+    let container = match docker
+        .inspect_container(&container_id, None::<InspectContainerOptions>)
         .await
-        .unwrap();
+    {
+        Ok(cont) => cont,
+        Err(err) => {
+            debug!("Cannot inspect container due to {}", err);
+            return Ok(PromConfig::new());
+        }
+    };
 
     let empty_hash = HashMap::new();
     let docker_labels = match csummary.clone().labels {
         Some(x) => x,
         _ => empty_hash,
     };
-    // let docker_labels = get_config_labels(container_config);
     let container_name = get_container_name(container.clone());
 
     pconfig.labels.job = container_name.clone();
@@ -103,7 +110,6 @@ async fn run(refresh_interval_sec: Duration) -> Result<(), Box<dyn std::error::E
     let mut previous_config = String::new();
 
     loop {
-        // TODO: Create the empty struct
         let mut promconfig: Vec<PromConfig> = Vec::new();
         let pconfig = PromConfig::new();
 
