@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bollard = "0.8"
+bollard = { git = "https://github.com/fussybeaver/bollard", branch = "master" }
 futures-core = "0.3.5"
 futures-util = "0.3.5"
 log = "0.4.11"
